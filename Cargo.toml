@@ -1,0 +1,14 @@
+[package]
+name = "kafka_ws"
+version = "0.1.0"
+authors = ["Stefan Eisl <seisl.mmt-m2020@fh-salzburg.ac.at>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rdkafka = { version = "0.25", features = ["cmake-build"] }
+tokio = { version = "1.2", features = ["full"] }
+futures = "0.3"
+tokio-tungstenite = "*"
+tungstenite = "0.13.0"

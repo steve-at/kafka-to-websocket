@@ -9,6 +9,6 @@ edition = "2018"
 [dependencies]
 rdkafka = { version = "0.25", features = ["cmake-build"] }
 tokio = { version = "1.2", features = ["full"] }
-futures = "0.3"
+futures = "0.3.13"
 tokio-tungstenite = "*"
 tungstenite = "0.13.0"

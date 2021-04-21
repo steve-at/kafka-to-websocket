@@ -10,12 +10,15 @@ struct CustomContext;
 impl ClientContext for CustomContext {}
 
 impl ConsumerContext for CustomContext {
+    // this callback is not used
     fn pre_rebalance(&self, rebalance: &Rebalance) {
         println!("Pre rebalance {:?}", rebalance);
     }
+    // this callback is not used
     fn post_rebalance(&self, rebalance: &Rebalance) {
         println!("Post rebalance {:?}", rebalance);
     }
+    // this callback is not used
     fn commit_callback(&self, result: KafkaResult<()>, _offsets: &TopicPartitionList) {
         println!("Committing offsets: {:?}", result);
     }
@@ -52,6 +55,7 @@ pub async fn consume(broker: &str, group_id: &str, topics: &[&str], sender: Send
                 match m.payload_view::<str>() {
                     None => "",
                     Some(Ok(s)) => {
+                        // println!("{}",s.clone());
                         sender.send(s.to_string()).expect("failed to send message internally");
                         s
                     },

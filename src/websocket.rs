@@ -16,16 +16,17 @@ pub async fn accept_connection(stream: TcpStream, mut receiver: Receiver<String>
     let ws_stream = tokio_tungstenite::accept_async(stream)
         .await
         .expect("error during the ws handshake");
-    // info!("New Web Socket connection: {}", addr);
+    println!("New Web Socket connection: {}", &_addr);
 
     let (mut write, _) = ws_stream.split();
     while receiver.changed().await.is_ok() {
         let y: String;
         {
             let x = receiver.borrow();
+            println!("{}",x.as_str());
             y = x.to_owned();
-        }
 
+        }
         let msg = tokio_tungstenite::tungstenite::Message::Text(y.to_string());
         write.send(msg).await.expect("failed to send message");
     }

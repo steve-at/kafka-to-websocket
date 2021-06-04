@@ -23,7 +23,7 @@ pub async fn accept_connection(stream: TcpStream, mut receiver: Receiver<String>
         let y: String;
         {
             let x = receiver.borrow();
-            println!("{}",x.as_str());
+            // println!("{}",x.as_str());
             y = x.to_owned();
 
         }

@@ -6,7 +6,7 @@ mod kafka;
 mod config;
 
 use crate::websocket::accept_connection;
-use crate::kafka::consume;
+use crate::kafka::{consume, consume_with_scheme};
 use crate::config::{Config, handle_config};
 
 
@@ -26,7 +26,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let kafka_task =  async move {
         let kafka_broker = format!("{}:{}", config.address, config.port);
         let topics = vec![config.topic.as_str()];
-        consume(kafka_broker.as_str(), config.group_id.as_str(), &topics, tx).await;
+        if config.use_avro_schema {
+            consume_with_scheme(kafka_broker.as_str(), config.group_id.as_str(), &topics, config.schema_registry.as_str(), tx).await;
+        } else {
+            consume(kafka_broker.as_str(), config.group_id.as_str(), &topics, tx).await;
+        }
+
     };
     rt.spawn(kafka_task);
 

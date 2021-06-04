@@ -1,18 +1,20 @@
 # step 1 --building
-FROM rust:1.50 as builder
+FROM rust:1.52 as builder
 
 # defining a user for the builder step
 RUN USER=root cargo new --bin kafka_ws
 WORKDIR ./kafka_ws
 
-# copying the dependency manifest.
-COPY ./Cargo.lock ./Cargo.lock
-COPY ./Cargo.toml ./Cargo.toml
-
 # install cmake for rdkafka
 RUN apt-get update \
     && apt-get install -y cmake \
     && rm -rf /var/lib/apt/lists/*
+
+# copying the dependency manifest.
+COPY ./Cargo.lock ./Cargo.lock
+COPY ./Cargo.toml ./Cargo.toml
+
+
 # build a dummy project with the dependencies. This will reduce build time if only the code changes but the deps stay
 RUN cargo build --release
 RUN rm src/*.rs

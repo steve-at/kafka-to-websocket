@@ -4,7 +4,6 @@ use tokio::sync::watch;
 mod websocket;
 mod kafka;
 mod config;
-mod custom_schema;
 
 use crate::websocket::accept_connection;
 use crate::kafka::{consume, consume_with_scheme};

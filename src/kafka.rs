@@ -1,4 +1,3 @@
-use avro_rs::{from_value};
 use futures::*;
 use rdkafka::{ClientContext, Message, TopicPartitionList};
 use rdkafka::config::{ClientConfig, RDKafkaLogLevel};
@@ -7,8 +6,8 @@ use rdkafka::error::KafkaResult;
 use schema_registry_converter::async_impl::avro::AvroDecoder;
 use schema_registry_converter::async_impl::schema_registry::SrSettings;
 use tokio::sync::watch::Sender;
+use std::convert::TryFrom;
 
-use crate::custom_schema::Track;
 
 struct CustomContext;
 
@@ -46,16 +45,17 @@ fn setup_config_for_consumer(group_id: &str, broker: &str, context: CustomContex
         .create_with_context(context)
         .expect("Consumer creation failed")
 }
-pub async fn consume(broker: &str, group_id: &str, topics: &[&str], sender: Sender<String>)  {
+
+pub async fn consume(broker: &str, group_id: &str, topics: &[&str], sender: Sender<String>) {
     let context = CustomContext;
     let consumer = setup_config_for_consumer(group_id, broker, context);
     consumer
         .subscribe(&topics.to_vec())
         .expect("Can't subscribe to specified topics");
 
-    let mut message_stream =  consumer.stream();
+    let mut message_stream = consumer.stream();
 
-    while let Some(message)  = message_stream.next().await {
+    while let Some(message) = message_stream.next().await {
         match message {
             Err(e) => println!("Kafka error: {}", e),
             Ok(m) => {
@@ -64,7 +64,7 @@ pub async fn consume(broker: &str, group_id: &str, topics: &[&str], sender: Send
                     Some(Ok(s)) => {
                         sender.send(s.to_string()).expect("failed to send message internally");
                         s
-                    },
+                    }
                     Some(Err(e)) => {
                         println!("Error while deserializing message payload: {:?}", e);
                         ""
@@ -76,7 +76,7 @@ pub async fn consume(broker: &str, group_id: &str, topics: &[&str], sender: Send
     }
 }
 
-pub async fn consume_with_scheme(broker: &str, group_id: &str, topics: &[&str], schema_registry: &str, sender: Sender<String>)  {
+pub async fn consume_with_scheme(broker: &str, group_id: &str, topics: &[&str], schema_registry: &str, sender: Sender<String>) {
     let context = CustomContext;
     let sr_settings = SrSettings::new(schema_registry.to_string());
     let mut decoder = AvroDecoder::new(sr_settings);
@@ -85,28 +85,27 @@ pub async fn consume_with_scheme(broker: &str, group_id: &str, topics: &[&str], 
         .subscribe(&topics.to_vec())
         .expect("Can't subscribe to specified topics");
 
-    let mut message_stream =  consumer.stream();
+    let mut message_stream = consumer.stream();
 
-    while let Some(message)  = message_stream.next().await {
+    while let Some(message) = message_stream.next().await {
         match message {
             Err(e) => println!("Kafka error: {}", e),
             Ok(m) => {
                 match decoder.decode(m.payload()).await {
                     Ok(result) => {
-                        match from_value::<Track>(&result.value) {
-                            Ok(track) => {
-                                println!("{:?}",&track);
-                                match serde_json::to_string(&track) {
+                        match serde_json::Value::try_from(result.value) {
+                            Ok(x) => {
+                                match serde_json::to_string(&x) {
                                     Ok(json_string) => {
                                         sender.send(json_string).expect("failed to send message internally");
                                     }
-                                    Err(_) => {println!("Failed to stringify the Message")}
+                                    Err(_) => { println!("Failed to stringify the Message") }
                                 }
                             }
-                            Err(_) => { println!("received value not within the given scheme")}
+                            Err(_) => {println!("Can't convert Avro to Json")}
                         }
                     }
-                    Err(_) => {println!("error receiving")}
+                    Err(_) => { println!("error receiving") }
                 };
                 consumer.commit_message(&m, CommitMode::Async).unwrap();
             }

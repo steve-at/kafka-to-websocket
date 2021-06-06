@@ -1,6 +1,7 @@
 use futures::*;
 use tokio::net::{TcpStream};
 use tokio::sync::watch::{Receiver};
+use tokio_tungstenite::tungstenite::Error;
 
 
 /// takes an TcpStream and a Receiver
@@ -28,6 +29,10 @@ pub async fn accept_connection(stream: TcpStream, mut receiver: Receiver<String>
 
         }
         let msg = tokio_tungstenite::tungstenite::Message::Text(y.to_string());
-        write.send(msg).await.expect("failed to send message");
+            match write.send(msg).await {
+                Ok(_) => {}
+                Err(_) => continue, // prevents Panic when a broken pipe happens
+        }
+
     }
 }

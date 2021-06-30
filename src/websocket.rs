@@ -1,13 +1,14 @@
 use futures::*;
 use tokio::net::{TcpStream};
 use tokio::sync::watch::{Receiver};
-use tokio_tungstenite::tungstenite::Error;
 
 
 /// takes an TcpStream and a Receiver
 ///
 /// the Receiver is from the messaging service like Kafka (the one of the sender which is passed
 /// to the kafka consumer
+///
+/// test comment
 ///
 /// The TCP Stream is the TCP Stream from the listening Method from the TCPListener
 pub async fn accept_connection(stream: TcpStream, mut receiver: Receiver<String>)  {

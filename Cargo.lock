@@ -1120,9 +1120,9 @@ dependencies = [
 
 [[package]]
 name = "schema_registry_converter"
-version = "2.0.2"
+version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f88c8993da29e1ec8b0229e031148885d1ae8c4a0455a1c9b8d0de0a59eab074"
+checksum = "19c7aae10131bb753c8f50e71d3a4ad44c561f9d2618205c78be2715e2bc29b3"
 dependencies = [
  "avro-rs",
  "byteorder",

@@ -1,5 +1,5 @@
 # step 1 --building
-FROM rust:1.55 as builder
+FROM rust:1.82 as builder
 
 # defining a user for the builder step
 RUN USER=root cargo new --bin kafka_ws
